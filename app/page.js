@@ -1,10 +1,16 @@
-import Navbar from "@/components/Navbar";
-import CasinoSlotOffers from "@/components/Offers";
+import BettingOffers from "@/components/BettingOffers";
+import Reviews from "@/components/Reviews";
 
-export default function Home() {
+const { default: BettingGames } = require("@/components/BettingGames");
+
+const Home = () => {
   return (
-    <div>
-      <CasinoSlotOffers />
-    </div>
+    <>
+      <BettingGames />
+      <BettingOffers />
+      <Reviews />
+    </>
   );
-}
+};
+
+export default Home;

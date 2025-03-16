@@ -79,7 +79,12 @@ const ContactUs = () => {
                       >
                         Name
                       </label>
-                      <Input id="name" name="name" {...register("name")} />
+                      <Input
+                        id="name"
+                        className="bg-orange-50"
+                        name="name"
+                        {...register("name")}
+                      />
                       {errors.name && (
                         <p className="text-red-500">{errors.name.message}</p>
                       )}
@@ -91,7 +96,12 @@ const ContactUs = () => {
                       >
                         Email
                       </label>
-                      <Input id="email" name="email" {...register("email")} />
+                      <Input
+                        id="email"
+                        name="email"
+                        {...register("email")}
+                        className="bg-orange-50"
+                      />
                       {errors.email && (
                         <p className="text-red-500">{errors.email.message}</p>
                       )}
@@ -105,6 +115,7 @@ const ContactUs = () => {
                       </label>
                       <Textarea
                         id="message"
+                        className="bg-orange-50"
                         name="message"
                         {...register("message")}
                       />
