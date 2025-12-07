@@ -75,6 +75,12 @@ const Navbar = () => {
               Offers
             </a>
             <a
+              href="/blogs"
+              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Blogs
+            </a>
+            <a
               href="/about"
               className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
@@ -120,6 +126,12 @@ const Navbar = () => {
               className="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
             >
               Offers
+            </a>
+            <a
+              href="/blogs"
+              className="block text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium"
+            >
+              Blogs
             </a>
             <a
               href="/about-us"
