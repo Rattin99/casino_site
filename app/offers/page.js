@@ -1,23 +1,25 @@
 import TitleSection from "@/components/TitleSection";
+import CasinoOffers from "@/components/CasinoOffers";
 
-const { default: Offers } = require("@/components/Offers");
-
-const OffersPage = () => {
+const OffersPage = ({ searchParams }) => {
   const props = {
-    title: "About us",
+    title: "Best Offers",
     description:
-      "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal",
+      "Discover Free Bets, Bonus Spins, Enhanced Odds, And More - All Designed To Elevate Your Free Betting Experience. Find Your Perfect Offer And Take Your Game To The Next Level!",
     image: "/offer-hero.png",
   };
+  
+  // Extract offer type from search params (e.g., /offers?type=casino)
+  const offerType = searchParams?.type || 'casino';
+  
   return (
     <>
-      {" "}
       <TitleSection
         title={props.title}
         description={props.description}
         image={props.image}
-      />{" "}
-      <Offers />{" "}
+      />
+      <CasinoOffers params={{ offerType }} />
     </>
   );
 };
