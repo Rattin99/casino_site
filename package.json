@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "php": "php -S localhost:8000 -t php-backend",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
