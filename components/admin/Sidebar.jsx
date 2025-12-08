@@ -62,6 +62,31 @@ const Sidebar = () => {
           <PlusCircle size={20} />
           <span>Add New Blog</span>
         </Link>
+        <div className="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Offers
+        </div>
+        <Link
+          href="/admin-panel/dashboard/offers"
+          className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+            isActive("/admin-panel/dashboard/offers")
+              ? "bg-orange-600 text-white"
+              : "text-gray-400 hover:bg-gray-800 hover:text-white"
+          }`}
+        >
+          <FileText size={20} />
+          <span>All Offers</span>
+        </Link>
+        <Link
+          href="/admin-panel/dashboard/offers/create"
+          className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+            isActive("/admin-panel/dashboard/offers/create")
+              ? "bg-orange-600 text-white"
+              : "text-gray-400 hover:bg-gray-800 hover:text-white"
+          }`}
+        >
+          <PlusCircle size={20} />
+          <span>Add New Offer</span>
+        </Link>
       </nav>
       <div className="p-4 border-t border-gray-800">
         <button
