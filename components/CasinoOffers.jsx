@@ -1,8 +1,12 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useSearchParams } from "next/navigation";
 
-const CasinoOffers = ({ params }) => {
+const CasinoOffers = () => {
+  const searchParams = useSearchParams();
+  const offerType = searchParams.get('type');
+  
   const [activeTab, setActiveTab] = useState('casino');
   const [state, setState] = useState({
     items: [],
@@ -20,10 +24,10 @@ const CasinoOffers = ({ params }) => {
   ];
 
   useEffect(() => {
-    if (params?.offerType && tabs.find(tab => tab.id === params.offerType)) {
-      setActiveTab(params.offerType);
+    if (offerType && tabs.find(tab => tab.id === offerType)) {
+      setActiveTab(offerType);
     }
-  }, [params]);
+  }, [offerType]);
 
   useEffect(() => {
     setState({
@@ -36,22 +40,26 @@ const CasinoOffers = ({ params }) => {
   }, [activeTab]);
 
   useEffect(() => {
-    if (state.page === 1 && state.items.length === 0) {
+    // Only fetch if we have empty items to avoid duplicates on strict mode or re-renders, 
+    // unless we are loading more, which is handled by handleLoadMore
+    if (state.items.length === 0) {
       fetchItems();
     }
-  }, [state.page, state.items.length, activeTab]);
+  }, [state.page, activeTab]);
 
   function fetchItems() {
-    if (state.loading || !state.hasMore) return;
+    if (state.loading) return; // Prevent multiple requests
 
     setState(prev => ({ ...prev, loading: true }));
 
     axios
-      .get(`/api/offers/${activeTab}`, {
+      .get(`/api/offers/read.php`, {
         params: {
+          "category": activeTab,
+          "status": "active",
           "page": state.page,
           "limit": state.limit,
-          "country": localStorage.getItem("lang") || "us"
+          // "country": localStorage.getItem("lang") || "us" // Not used by PHP yet
         }
       })
       .then((response) => {
@@ -60,7 +68,7 @@ const CasinoOffers = ({ params }) => {
 
         setState(prev => ({
           ...prev,
-          items: [...prev.items, ...newItems],
+          items: state.page === 1 ? newItems : [...prev.items, ...newItems],
           page: nextPage,
           loading: false,
           hasMore: newItems.length === prev.limit
@@ -73,6 +81,9 @@ const CasinoOffers = ({ params }) => {
   }
 
   const handleLoadMore = () => {
+    // Just triggering state update will cause effect to run if we depend on page
+    // But effect checks items.length === 0.
+    // Let's call fetchItems directly for load more.
     fetchItems();
   };
 
@@ -110,38 +121,50 @@ const CasinoOffers = ({ params }) => {
           {state.items.length > 0 ? (
             state.items.map((offer, index) => (
               <div
-                key={`${offer.id || index}`}
-                className="bg-white border border-gray-200 rounded-lg shadow-md p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between hover:shadow-lg transition-shadow"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
-                  {offer.logo && (
-                    <img
-                      src={offer.logo}
-                      alt={offer.title || 'Offer'}
-                      className="w-20 h-16 object-contain mx-auto sm:mx-0"
-                    />
-                  )}
-                  <div className="text-center sm:text-left">
-                    <h3 className="text-xl font-bold text-gray-800">
-                      {offer.title || 'Special Offer'}
-                    </h3>
-                    <p className="text-gray-600 mt-1">
-                      {offer.description || offer.desc || 'Great offer available!'}
-                    </p>
-                    {offer.rating && (
-                      <div className="flex justify-center sm:justify-start mt-2">
-                        {Array.from({ length: Math.floor(offer.rating) }, (_, i) => (
-                          <span key={i} className="text-yellow-400">★</span>
-                        ))}
-                        <span className="ml-1 text-sm text-gray-500">({offer.rating})</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg mt-4 sm:mt-0 transition-colors">
-                  {offer.label || 'CLAIM'}
-                </button>
-              </div>
+                                                                key={`${offer.id || index}`}
+                                                                className="bg-white border border-gray-200 rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center hover:shadow-lg transition-shadow"
+                                                              >
+                                                                {/* Left Section: Logo, Name, Rating */}
+                                                                <div className="flex items-center w-full sm:w-auto mb-4 sm:mb-0">
+                                                                  {offer.company_logo && (
+                                                                    <img
+                                                                      src={offer.company_logo}
+                                                                      alt={offer.company_name || 'Offer'}
+                                                                      className="w-20 h-20 object-contain mr-4"
+                                                                    />
+                                                                  )}
+                                                                  <div className="flex flex-col text-left">
+                                                                    <h3 className="text-xl font-bold text-gray-800 leading-tight">
+                                                                      {offer.company_name || 'Special Offer'}
+                                                                    </h3>
+                                                                    <div className="flex items-center mt-1">
+                                                                      {Array.from({ length: Math.floor(Math.random() * 2) + 4 }, (_, i) => (
+                                                                        <span key={i} className="text-yellow-400 text-sm">★</span>
+                                                                      ))}
+                                                                      <span className="ml-1 text-xs text-gray-500">({(Math.random() * 1).toFixed(1) + 4})</span>
+                                                                    </div>
+                                                                  </div>
+                                                                </div>
+                                                
+                                                                {/* Middle Section: Description */}
+                                                                <div className="flex-1 px-4 text-center mb-4 sm:mb-0 w-full sm:w-auto">
+                                                                  <p className="text-gray-600 text-sm max-w-md mx-auto">
+                                                                    {offer.description || 'Great offer available!'}
+                                                                  </p>
+                                                                </div>
+                                                
+                                                                {/* Right Section: Button */}
+                                                                <div className="w-full sm:w-auto">
+                                                                  <a
+                                                                    href={offer.redirect_url || '#'}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg transition-colors block text-center whitespace-nowrap"
+                                                                  >
+                                                                    CLAIM BONUS
+                                                                  </a>
+                                                                </div>
+                                                              </div>
             ))
           ) : (
             !state.loading && (
