@@ -136,7 +136,7 @@ const CasinoOffers = () => {
             state.items.map((offer, index) => (
               <div
                 key={`${offer.id || index}`}
-                className="bg-white border border-gray-200 rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center hover:shadow-lg transition-shadow"
+                className="bg-white border border-gray-200 rounded-lg shadow-md py-2 px-4 flex flex-col sm:flex-row items-center hover:shadow-lg transition-shadow"
               >
                 {/* Left Section: Logo, Name, Rating */}
                 <div className="flex items-center w-full sm:w-auto mb-4 sm:mb-0">
@@ -144,7 +144,7 @@ const CasinoOffers = () => {
                     <img
                       src={offer.company_logo}
                       alt={offer.company_name || 'Offer'}
-                      className="w-20 h-20 object-contain mr-4"
+                      className="w-40 h-40 object-contain mr-4"
                     />
                   )}
                   <div className="flex flex-col text-left">

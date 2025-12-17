@@ -87,6 +87,31 @@ const Sidebar = () => {
           <PlusCircle size={20} />
           <span>Add New Offer</span>
         </Link>
+        <div className="pt-4 pb-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Online Games
+        </div>
+        <Link
+          href="/admin-panel/dashboard/online-games"
+          className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+            isActive("/admin-panel/dashboard/online-games")
+              ? "bg-orange-600 text-white"
+              : "text-gray-400 hover:bg-gray-800 hover:text-white"
+          }`}
+        >
+          <FileText size={20} />
+          <span>All Games</span>
+        </Link>
+        <Link
+          href="/admin-panel/dashboard/online-games/create"
+          className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+            isActive("/admin-panel/dashboard/online-games/create")
+              ? "bg-orange-600 text-white"
+              : "text-gray-400 hover:bg-gray-800 hover:text-white"
+          }`}
+        >
+          <PlusCircle size={20} />
+          <span>Add New Game</span>
+        </Link>
       </nav>
       <div className="p-4 border-t border-gray-800">
         <button
