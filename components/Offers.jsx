@@ -1,6 +1,10 @@
 import React from "react";
+import { useSearchParams } from "next/navigation";
 
 const Offers = () => {
+  const searchParams = useSearchParams();
+  const selectedCountry = searchParams.get("country");
+
   // Data for Casino Slot Offers
   const casinoOffers = [
     {
@@ -10,6 +14,7 @@ const Offers = () => {
       label: "CLAIM",
       rating: 5.0,
       logo: "/22bet.png", // Path to logo in public folder
+      country: "USA"
     },
     {
       id: 2,
@@ -18,6 +23,7 @@ const Offers = () => {
       label: "CLAIM",
       rating: 5.0,
       logo: "/mostbet.png",
+      country: "UK"
     },
     {
       id: 3,
@@ -26,6 +32,7 @@ const Offers = () => {
       label: "CLAIM",
       rating: 4.6,
       logo: "/betwinner.png",
+      country: "Canada"
     },
     {
       id: 4,
@@ -34,8 +41,13 @@ const Offers = () => {
       label: "CLAIM",
       rating: 4.8,
       logo: "/parimatch.png",
+      country: "USA"
     },
   ];
+
+  const filteredOffers = selectedCountry 
+    ? casinoOffers.filter(offer => offer.country === selectedCountry)
+    : casinoOffers;
 
   return (
     <div className="p-6 bg-gray-100 flex justify-center">
@@ -48,8 +60,18 @@ const Offers = () => {
           Lights, Camera, Casino Action! Give into exclusive offers on your
           favorite slots and table games.
         </p>
+
+        {selectedCountry && (
+             <div className="text-center mb-6">
+                <span className="bg-orange-100 text-orange-800 text-sm font-medium px-3 py-1 rounded border border-orange-400">
+                    Showing offers for: {selectedCountry}
+                </span>
+             </div>
+        )}
+
         <div className="space-y-6 flex-col items center">
-          {casinoOffers.map((offer) => (
+          {filteredOffers.length > 0 ? (
+            filteredOffers.map((offer) => (
             <div
               key={offer.id}
               className="bg-white w-4/5 sm:w-2/3 mx-auto rounded-lg shadow-md py-8 px-12 flex flex-col sm:flex-row sm:justify-evenly sm:items-center "
@@ -78,6 +100,7 @@ const Offers = () => {
               {/* Text Content */}
               <div className="flex-1">
                 <p className="text-gray-700 text-center">{offer.description}</p>
+                <p className="text-gray-400 text-xs text-center mt-1">Available in: {offer.country}</p>
               </div>
 
               {/* Image and Star Rating (Aligned Vertically) */}
@@ -86,7 +109,12 @@ const Offers = () => {
                 {offer.label}
               </button>
             </div>
-          ))}
+          ))
+          ) : (
+             <div className="text-center text-gray-500 py-8">
+                No offers available for {selectedCountry}.
+             </div>
+          )}
         </div>
       </section>
     </div>

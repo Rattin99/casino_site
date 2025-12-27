@@ -10,6 +10,7 @@ const OnlineGameForm = ({ initialData = null }) => {
     name: "",
     image_url: "",
     url: "",
+    country: "",
   });
 
   React.useEffect(() => {
@@ -89,6 +90,18 @@ const OnlineGameForm = ({ initialData = null }) => {
             required
             value={formData.name}
             onChange={handleChange}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+          />
+        </div>
+
+        <div className="col-span-2 md:col-span-1">
+          <label className="block text-sm font-medium text-gray-700">Country</label>
+          <input
+            type="text"
+            name="country"
+            value={formData.country || ""}
+            onChange={handleChange}
+            placeholder="e.g., USA, UK"
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-orange-500 focus:border-orange-500"
           />
         </div>

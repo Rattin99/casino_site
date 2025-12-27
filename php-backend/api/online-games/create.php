@@ -18,18 +18,20 @@ if (
 }
 
 try {
-    $query = "INSERT INTO online_game (name, image_url, url) 
-              VALUES (:name, :image_url, :url)";
+    $query = "INSERT INTO online_game (name, image_url, url, country) 
+              VALUES (:name, :image_url, :url, :country)";
     
     $stmt = $conn->prepare($query);
 
     // Default values
     $image_url = !empty($data->image_url) ? $data->image_url : null;
     $url = !empty($data->url) ? $data->url : null;
+    $country = !empty($data->country) ? $data->country : null;
 
     $stmt->bindParam(":name", $data->name);
     $stmt->bindParam(":image_url", $image_url);
     $stmt->bindParam(":url", $url);
+    $stmt->bindParam(":country", $country);
 
     if ($stmt->execute()) {
         $game_id = $conn->lastInsertId();

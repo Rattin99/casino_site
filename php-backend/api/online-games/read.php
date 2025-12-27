@@ -4,10 +4,23 @@ header("Content-Type: application/json; charset=UTF-8");
 
 include_once '../db.php';
 
+$country = isset($_GET['country']) ? $_GET['country'] : null;
+
 try {
-    $query = "SELECT * FROM online_game ORDER BY id DESC";
+    $query = "SELECT * FROM online_game WHERE 1=1";
+
+    if ($country) {
+        $query .= " AND country = :country";
+    }
+
+    $query .= " ORDER BY id DESC";
     
     $stmt = $conn->prepare($query);
+
+    if ($country) {
+        $stmt->bindParam(":country", $country);
+    }
+
     $stmt->execute();
     
     $games = array();
@@ -18,7 +31,8 @@ try {
             "id" => $id,
             "name" => $name,
             "image_url" => $image_url,
-            "url" => $url
+            "url" => $url,
+            "country" => $country
         );
         array_push($games, $game_item);
     }

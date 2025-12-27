@@ -1,10 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import TitleSection from "@/components/TitleSection";
+import { useSearchParams } from "next/navigation";
 
 const OnlineGames = () => {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const countryFilter = searchParams.get("country");
 
   const props = {
     title: "Online Games",
@@ -15,8 +18,13 @@ const OnlineGames = () => {
 
   useEffect(() => {
     const fetchGames = async () => {
+      setLoading(true);
       try {
-        const res = await fetch("/api/online-games/read.php");
+        let url = "/api/online-games/read.php";
+        if (countryFilter) {
+          url += `?country=${encodeURIComponent(countryFilter)}`;
+        }
+        const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
           setGames(data);
@@ -29,7 +37,7 @@ const OnlineGames = () => {
     };
 
     fetchGames();
-  }, []);
+  }, [countryFilter]);
 
   return (
     <div className="">
@@ -41,6 +49,16 @@ const OnlineGames = () => {
       {/* Games Grid - Made slimmer with max-width and centered */}
       <div className="w-full bg-orange-50">
         <div className="max-w-5xl mx-auto px-4 py-12">
+            
+          {/* Country Filter info */}
+          {countryFilter && (
+            <div className="mb-6 text-center">
+               <span className="bg-orange-100 text-orange-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded border border-orange-400">
+                  Showing games for: {countryFilter}
+               </span>
+            </div>
+          )}
+
           {loading ? (
             <div className="text-center py-12">Loading...</div>
           ) : (

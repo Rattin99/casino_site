@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 const CasinoOffers = () => {
   const searchParams = useSearchParams();
   const offerType = searchParams.get('type');
+  const countryFilter = searchParams.get("country");
   
   const [activeTab, setActiveTab] = useState('casino');
   const [state, setState] = useState({
@@ -30,7 +31,7 @@ const CasinoOffers = () => {
     }
   }, [offerType]);
 
-  // Handle Tab Change and Initial Fetch
+  // Handle Tab Change, Country Change and Initial Fetch
   useEffect(() => {
     // Reset state and set loading to true immediately
     setState(prev => ({
@@ -43,14 +44,17 @@ const CasinoOffers = () => {
 
     const fetchInitialData = async () => {
       try {
-        const response = await axios.get(`/api/offers/read.php`, {
-          params: {
-            "category": activeTab,
-            "status": "active",
-            "page": 1,
-            "limit": 10,
-          }
-        });
+        const params = {
+          "category": activeTab,
+          "status": "active",
+          "page": 1,
+          "limit": 10,
+        };
+        if (countryFilter) {
+          params.country = countryFilter;
+        }
+
+        const response = await axios.get(`/api/offers/read.php`, { params });
 
         const newItems = response.data || [];
         
@@ -67,9 +71,11 @@ const CasinoOffers = () => {
       }
     };
 
+    // Debounce not strictly needed here if we rely on prop change, but keep it for safety or remove. 
+    // Since searchParams updates are external (Navbar), we can just fetch immediately.
     fetchInitialData();
 
-  }, [activeTab]);
+  }, [activeTab, countryFilter]);
 
   const handleLoadMore = async () => {
     if (state.loading) return;
@@ -77,14 +83,17 @@ const CasinoOffers = () => {
     setState(prev => ({ ...prev, loading: true }));
 
     try {
-      const response = await axios.get(`/api/offers/read.php`, {
-        params: {
-          "category": activeTab,
-          "status": "active",
-          "page": state.page,
-          "limit": state.limit,
-        }
-      });
+      const params = {
+        "category": activeTab,
+        "status": "active",
+        "page": state.page,
+        "limit": state.limit,
+      };
+      if (countryFilter) {
+        params.country = countryFilter;
+      }
+
+      const response = await axios.get(`/api/offers/read.php`, { params });
 
       const newItems = response.data || [];
 
@@ -113,8 +122,17 @@ const CasinoOffers = () => {
           Offer And Take Your Game To The Next Level!
         </p>
 
+        {/* Country Filter info */}
+        {countryFilter && (
+           <div className="mt-6">
+              <span className="bg-orange-100 text-orange-800 text-sm font-medium px-3 py-1 rounded border border-orange-400">
+                  Showing offers for: {countryFilter}
+              </span>
+           </div>
+        )}
+
         {/* Tabs */}
-        <div className="flex flex-wrap justify-center mt-8 mb-8 gap-3">
+        <div className="flex flex-wrap justify-center mt-6 mb-8 gap-3">
           {tabs.map((tab) => (
             <button
               key={tab.id}
