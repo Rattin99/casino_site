@@ -1,6 +1,42 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 const BettingGames = () => {
+  const [games, setGames] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const countryFilter = searchParams.get("country");
+
+  useEffect(() => {
+    const fetchGames = async () => {
+      setLoading(true);
+      try {
+        let url = "/api/online-games/read.php";
+        if (countryFilter) {
+          url += `?country=${encodeURIComponent(countryFilter)}`;
+        }
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setGames(data);
+          } else {
+            console.error("API response is not an array:", data);
+            setGames([]);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch games", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGames();
+  }, [countryFilter]);
+
   return (
     <div className="w-full bg-white pb-12">
       {/* Hero Section */}
@@ -48,31 +84,61 @@ const BettingGames = () => {
             diverse collection has something for everyone.
           </p>
 
-          {/* Game Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mt-8 px-4 md:px-0">
-            {[
-              { name: "Coin Battles", image: "/game1.png" },
-              { name: "Coinflip", image: "/game2.png" },
-              { name: "Dice", image: "/game3.png" },
-              { name: "Wheel", image: "/game4.png" },
-              { name: "Sweet Bonanza", image: "/game5.png" },
-            ].map((game, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-lg shadow-lg flex flex-col items-center text-center"
-              >
-                <img
-                  src={game.image}
-                  alt={game.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
+          {countryFilter && (
+            <div className="mt-4 text-center">
+               <span className="bg-orange-200 text-orange-800 text-sm font-medium px-2.5 py-0.5 rounded border border-orange-400">
+                  Showing games for: {countryFilter}
+               </span>
+            </div>
+          )}
 
-          <button className="mt-8 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg">
-            All Games
-          </button>
+          {/* Game Cards */}
+          {loading ? (
+            <div className="text-center py-12">Loading...</div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mt-8 px-4 md:px-0">
+              {games.slice(0, 10).map((game) => (
+                <a
+                  key={game.id}
+                  href={game.url || "#"}
+                  target={game.url ? "_blank" : "_self"}
+                  rel="noopener noreferrer"
+                  className="relative bg-gradient-to-b from-purple-600 to-blue-500 rounded-lg overflow-hidden cursor-pointer transform transition-transform hover:scale-105 block"
+                >
+                  <div
+                    className="relative w-full"
+                    style={{ paddingBottom: "100%" }}
+                  >
+                    {game.image_url ? (
+                      <img
+                        src={game.image_url}
+                        alt={game.name}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    ) : (
+                       <div className="absolute inset-0 flex items-center justify-center text-white font-bold bg-gray-400">
+                          {game.name}
+                       </div>
+                    )}
+                    
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-orange-500 rounded-full p-1.5 opacity-90 hover:opacity-100 transition-opacity shadow-lg">
+                        <div className="w-6 h-6 flex items-center justify-center pl-1">
+                          <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
+
+          <Link href="/online-game">
+            <button className="mt-8 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg">
+              All Games
+            </button>
+          </Link>
         </div>
       </div>
     </div>
