@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 const Navbar = () => {
@@ -60,7 +61,9 @@ const Navbar = () => {
 
           {/* Logo (Centered on mobile) */}
           <div className="flex-1 flex justify-center">
-            <img src="./logo.png" alt="Betsson Logo" className="h-8 w-auto" />
+            <Link href="/">
+              <img src="./logo.png" alt="Betsson Logo" className="h-8 w-auto" />
+            </Link>
           </div>
 
           {/* Country Selector (Rightmost on mobile) */}
@@ -84,7 +87,9 @@ const Navbar = () => {
         <div className="hidden md:flex items-center justify-between h-16">
           {/* Logo (Left on desktop) */}
           <div className="flex items-center">
-            <img src="./logo.png" alt="Betsson Logo" className="h-8 w-auto" />
+            <Link href="/">
+              <img src="./logo.png" alt="Betsson Logo" className="h-8 w-auto" />
+            </Link>
           </div>
 
           {/* Navigation Links (Center on desktop) */}
