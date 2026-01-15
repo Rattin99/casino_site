@@ -1,5 +1,13 @@
+import { Suspense } from "react";
 import TitleSection from "@/components/TitleSection";
 import CasinoOffers from "@/components/CasinoOffers";
+
+export async function generateStaticParams() {
+  const validTypes = ['casino', 'crypto', 'lottery', 'sports'];
+  return validTypes.map((type) => ({
+    type: type,
+  }));
+}
 
 const DynamicOffersPage = ({ params }) => {
   const offerType = params.type;
@@ -21,7 +29,9 @@ const DynamicOffersPage = ({ params }) => {
         description={props.description}
         image={props.image}
       />
-      <CasinoOffers params={{ offerType: currentType }} />
+      <Suspense fallback={<div>Loading offers...</div>}>
+        <CasinoOffers params={{ offerType: currentType }} />
+      </Suspense>
     </>
   );
 };

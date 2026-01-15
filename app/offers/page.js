@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import { Suspense } from "react";
 import TitleSection from "@/components/TitleSection";
 import CasinoOffers from "@/components/CasinoOffers";
 
@@ -17,11 +17,10 @@ const OffersPage = () => {
         description={props.description}
         image={props.image}
       />
-      <Suspense fallback={<div className="text-center py-12">Loading...</div>}>
+      <Suspense fallback={<div>Loading...</div>}>
         <CasinoOffers />
       </Suspense>
     </>
   );
 };
 
-export default OffersPage;

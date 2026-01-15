@@ -11,6 +11,7 @@ try {
     $conn = new PDO("mysql:host=" . $host . ";dbname=" . $db_name, $username, $password);
     $conn->exec("set names utf8");
 } catch(PDOException $exception) {
+    http_response_code(500);
     echo json_encode(array("error" => "Connection error: " . $exception->getMessage()));
     exit();
 }
