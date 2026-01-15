@@ -6,6 +6,7 @@ include_once '../db.php';
 
 $category = isset($_GET['category']) ? $_GET['category'] : null;
 $status = isset($_GET['status']) ? $_GET['status'] : null;
+$country = isset($_GET['country']) ? $_GET['country'] : null;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000; // Default to high number if not specified
 
@@ -21,6 +22,10 @@ try {
     if ($status) {
         $query .= " AND status = :status";
     }
+
+    if ($country) {
+        $query .= " AND country = :country";
+    }
     
     $query .= " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
     
@@ -32,6 +37,10 @@ try {
     
     if ($status) {
         $stmt->bindParam(":status", $status);
+    }
+
+    if ($country) {
+        $stmt->bindParam(":country", $country);
     }
     
     $stmt->bindParam(":limit", $limit, PDO::PARAM_INT);
@@ -51,6 +60,7 @@ try {
             "description" => $description,
             "redirect_url" => $redirect_url,
             "status" => $status,
+            "country" => $country,
             "created_at" => $created_at,
             "updated_at" => $updated_at
         );

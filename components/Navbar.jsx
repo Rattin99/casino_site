@@ -1,8 +1,34 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const [country, setCountry] = useState("");
+
+  useEffect(() => {
+    const currentCountry = searchParams.get("country");
+    if (currentCountry) {
+      setCountry(currentCountry);
+    }
+  }, [searchParams]);
+
+  const handleCountryChange = (e) => {
+    const newCountry = e.target.value;
+    setCountry(newCountry);
+    
+    const params = new URLSearchParams(searchParams);
+    if (newCountry) {
+      params.set("country", newCountry);
+    } else {
+      params.delete("country");
+    }
+    
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <nav className="bg-white shadow-md">
@@ -37,12 +63,19 @@ const Navbar = () => {
             <img src="./logo.png" alt="Betsson Logo" className="h-8 w-auto" />
           </div>
 
-          {/* Language Selector (Rightmost on mobile) */}
+          {/* Country Selector (Rightmost on mobile) */}
           <div className="relative inline-block text-left">
-            <select className="border border-gray-300 rounded-md text-gray-700 px-3 py-2 text-sm">
-              <option>EN</option>
-              <option>ES</option>
-              <option>FR</option>
+            <select 
+              value={country}
+              onChange={handleCountryChange}
+              className="border border-gray-300 rounded-md text-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+            >
+              <option value="">All Countries</option>
+              <option value="USA">USA</option>
+              <option value="UK">UK</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+              <option value="Germany">Germany</option>
             </select>
           </div>
         </div>
@@ -94,12 +127,19 @@ const Navbar = () => {
             </a>
           </div>
 
-          {/* Language Selector (Right on desktop) */}
+          {/* Country Selector (Right on desktop) */}
           <div className="relative inline-block text-left">
-            <select className="border border-gray-300 rounded-md text-gray-700 px-3 py-2 text-sm">
-              <option>EN</option>
-              <option>ES</option>
-              <option>FR</option>
+            <select 
+              value={country}
+              onChange={handleCountryChange}
+              className="border border-gray-300 rounded-md text-gray-700 px-3 py-2 text-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+            >
+              <option value="">All Countries</option>
+              <option value="USA">USA</option>
+              <option value="UK">UK</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+              <option value="Germany">Germany</option>
             </select>
           </div>
         </div>

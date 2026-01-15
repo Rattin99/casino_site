@@ -6,13 +6,14 @@ import { useSearchParams } from "next/navigation";
 const CasinoOffers = () => {
   const searchParams = useSearchParams();
   const offerType = searchParams.get('type');
+  const countryFilter = searchParams.get("country");
   
   const [activeTab, setActiveTab] = useState('casino');
   const [state, setState] = useState({
     items: [],
     page: 1,
     limit: 10,
-    loading: false,
+    loading: true, // Start with loading true to avoid initial flash
     hasMore: true
   });
 
@@ -23,68 +24,90 @@ const CasinoOffers = () => {
     { id: 'sports', name: 'Sports' }
   ];
 
+  // Set active tab from URL param if present
   useEffect(() => {
     if (offerType && tabs.find(tab => tab.id === offerType)) {
       setActiveTab(offerType);
     }
   }, [offerType]);
 
+  // Handle Tab Change, Country Change and Initial Fetch
   useEffect(() => {
-    setState({
+    // Reset state and set loading to true immediately
+    setState(prev => ({
+      ...prev,
       items: [],
       page: 1,
-      limit: 10,
-      loading: false,
+      loading: true,
       hasMore: true
-    });
-  }, [activeTab]);
+    }));
 
-  useEffect(() => {
-    // Only fetch if we have empty items to avoid duplicates on strict mode or re-renders, 
-    // unless we are loading more, which is handled by handleLoadMore
-    if (state.items.length === 0) {
-      fetchItems();
-    }
-  }, [state.page, activeTab]);
+    const fetchInitialData = async () => {
+      try {
+        const params = {
+          "category": activeTab,
+          "status": "active",
+          "page": 1,
+          "limit": 10,
+        };
+        if (countryFilter) {
+          params.country = countryFilter;
+        }
 
-  function fetchItems() {
-    if (state.loading) return; // Prevent multiple requests
+        const response = await axios.get(`/api/offers/read.php`, { params });
+
+        const newItems = response.data || [];
+        
+        setState(prev => ({
+          ...prev,
+          items: newItems,
+          page: 2, // Prepare for next page
+          loading: false,
+          hasMore: newItems.length === 10 // Assuming limit is 10
+        }));
+      } catch (error) {
+        console.error('Offer Fetching failed:', error);
+        setState(prev => ({ ...prev, loading: false }));
+      }
+    };
+
+    // Debounce not strictly needed here if we rely on prop change, but keep it for safety or remove. 
+    // Since searchParams updates are external (Navbar), we can just fetch immediately.
+    fetchInitialData();
+
+  }, [activeTab, countryFilter]);
+
+  const handleLoadMore = async () => {
+    if (state.loading) return;
 
     setState(prev => ({ ...prev, loading: true }));
 
-    axios
-      .get(`/api/offers/read.php`, {
-        params: {
-          "category": activeTab,
-          "status": "active",
-          "page": state.page,
-          "limit": state.limit,
-          // "country": localStorage.getItem("lang") || "us" // Not used by PHP yet
-        }
-      })
-      .then((response) => {
-        const newItems = response.data || [];
-        let nextPage = state.page + 1;
+    try {
+      const params = {
+        "category": activeTab,
+        "status": "active",
+        "page": state.page,
+        "limit": state.limit,
+      };
+      if (countryFilter) {
+        params.country = countryFilter;
+      }
 
-        setState(prev => ({
-          ...prev,
-          items: state.page === 1 ? newItems : [...prev.items, ...newItems],
-          page: nextPage,
-          loading: false,
-          hasMore: newItems.length === prev.limit
-        }));
-      })
-      .catch((error) => {
-        console.error('Offer Fetching failed:', error);
-        setState(prev => ({ ...prev, loading: false }));
-      });
-  }
+      const response = await axios.get(`/api/offers/read.php`, { params });
 
-  const handleLoadMore = () => {
-    // Just triggering state update will cause effect to run if we depend on page
-    // But effect checks items.length === 0.
-    // Let's call fetchItems directly for load more.
-    fetchItems();
+      const newItems = response.data || [];
+
+      setState(prev => ({
+        ...prev,
+        items: [...prev.items, ...newItems],
+        page: prev.page + 1,
+        loading: false,
+        hasMore: newItems.length === prev.limit
+      }));
+    } catch (error) {
+      console.error('Load More failed:', error);
+      setState(prev => ({ ...prev, loading: false }));
+    }
   };
 
   return (
@@ -99,8 +122,17 @@ const CasinoOffers = () => {
           Offer And Take Your Game To The Next Level!
         </p>
 
+        {/* Country Filter info */}
+        {countryFilter && (
+           <div className="mt-6">
+              <span className="bg-orange-100 text-orange-800 text-sm font-medium px-3 py-1 rounded border border-orange-400">
+                  Showing offers for: {countryFilter}
+              </span>
+           </div>
+        )}
+
         {/* Tabs */}
-        <div className="flex flex-wrap justify-center mt-8 mb-8 gap-3">
+        <div className="flex flex-wrap justify-center mt-6 mb-8 gap-3">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -121,50 +153,50 @@ const CasinoOffers = () => {
           {state.items.length > 0 ? (
             state.items.map((offer, index) => (
               <div
-                                                                key={`${offer.id || index}`}
-                                                                className="bg-white border border-gray-200 rounded-lg shadow-md p-4 flex flex-col sm:flex-row items-center hover:shadow-lg transition-shadow"
-                                                              >
-                                                                {/* Left Section: Logo, Name, Rating */}
-                                                                <div className="flex items-center w-full sm:w-auto mb-4 sm:mb-0">
-                                                                  {offer.company_logo && (
-                                                                    <img
-                                                                      src={offer.company_logo}
-                                                                      alt={offer.company_name || 'Offer'}
-                                                                      className="w-20 h-20 object-contain mr-4"
-                                                                    />
-                                                                  )}
-                                                                  <div className="flex flex-col text-left">
-                                                                    <h3 className="text-xl font-bold text-gray-800 leading-tight">
-                                                                      {offer.company_name || 'Special Offer'}
-                                                                    </h3>
-                                                                    <div className="flex items-center mt-1">
-                                                                      {Array.from({ length: Math.floor(Math.random() * 2) + 4 }, (_, i) => (
-                                                                        <span key={i} className="text-yellow-400 text-sm">★</span>
-                                                                      ))}
-                                                                      <span className="ml-1 text-xs text-gray-500">({(Math.random() * 1).toFixed(1) + 4})</span>
-                                                                    </div>
-                                                                  </div>
-                                                                </div>
-                                                
-                                                                {/* Middle Section: Description */}
-                                                                <div className="flex-1 px-4 text-center mb-4 sm:mb-0 w-full sm:w-auto">
-                                                                  <p className="text-gray-600 text-sm max-w-md mx-auto">
-                                                                    {offer.description || 'Great offer available!'}
-                                                                  </p>
-                                                                </div>
-                                                
-                                                                {/* Right Section: Button */}
-                                                                <div className="w-full sm:w-auto">
-                                                                  <a
-                                                                    href={offer.redirect_url || '#'}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg transition-colors block text-center whitespace-nowrap"
-                                                                  >
-                                                                    CLAIM BONUS
-                                                                  </a>
-                                                                </div>
-                                                              </div>
+                key={`${offer.id || index}`}
+                className="bg-white border border-gray-200 rounded-lg shadow-md py-2 px-4 flex flex-col sm:flex-row items-center hover:shadow-lg transition-shadow"
+              >
+                {/* Left Section: Logo, Name, Rating */}
+                <div className="flex items-center w-full sm:w-auto mb-4 sm:mb-0">
+                  {offer.company_logo && (
+                    <img
+                      src={offer.company_logo}
+                      alt={offer.company_name || 'Offer'}
+                      className="w-40 h-40 object-contain mr-4"
+                    />
+                  )}
+                  <div className="flex flex-col text-left">
+                    <h3 className="text-xl font-bold text-gray-800 leading-tight">
+                      {offer.company_name || 'Special Offer'}
+                    </h3>
+                    <div className="flex items-center mt-1">
+                      {Array.from({ length: Math.floor(Math.random() * 2) + 4 }, (_, i) => (
+                        <span key={i} className="text-yellow-400 text-sm">★</span>
+                      ))}
+                      <span className="ml-1 text-xs text-gray-500">({(Math.random() * 1).toFixed(1) + 4})</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Middle Section: Description */}
+                <div className="flex-1 px-4 text-center mb-4 sm:mb-0 w-full sm:w-auto">
+                  <p className="text-gray-600 text-sm max-w-md mx-auto">
+                    {offer.description || 'Great offer available!'}
+                  </p>
+                </div>
+
+                {/* Right Section: Button */}
+                <div className="w-full sm:w-auto">
+                  <a
+                    href={offer.redirect_url || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg transition-colors block text-center whitespace-nowrap"
+                  >
+                    CLAIM BONUS
+                  </a>
+                </div>
+              </div>
             ))
           ) : (
             !state.loading && (

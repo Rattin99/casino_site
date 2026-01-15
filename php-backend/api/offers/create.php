@@ -20,8 +20,8 @@ if (
 }
 
 try {
-    $query = "INSERT INTO offers (category, company_name, company_logo, description, redirect_url, status) 
-              VALUES (:category, :company_name, :company_logo, :description, :redirect_url, :status)";
+    $query = "INSERT INTO offers (category, company_name, company_logo, description, redirect_url, status, country) 
+              VALUES (:category, :company_name, :company_logo, :description, :redirect_url, :status, :country)";
     
     $stmt = $conn->prepare($query);
 
@@ -29,6 +29,7 @@ try {
     $status = !empty($data->status) ? $data->status : 'active';
     $description = !empty($data->description) ? $data->description : null;
     $company_logo = !empty($data->company_logo) ? $data->company_logo : null;
+    $country = !empty($data->country) ? $data->country : null;
 
     $stmt->bindParam(":category", $data->category);
     $stmt->bindParam(":company_name", $data->company_name);
@@ -36,6 +37,7 @@ try {
     $stmt->bindParam(":description", $description);
     $stmt->bindParam(":redirect_url", $data->redirect_url);
     $stmt->bindParam(":status", $status);
+    $stmt->bindParam(":country", $country);
 
     if ($stmt->execute()) {
         $offer_id = $conn->lastInsertId();
