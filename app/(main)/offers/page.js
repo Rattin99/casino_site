@@ -28,3 +28,5 @@ const OffersPage = async ({ searchParams }) => {
   );
 };
 
+export default OffersPage;
+

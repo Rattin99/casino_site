@@ -1,12 +1,14 @@
 import BettingOffers from "@/components/BettingOffers";
 import Reviews from "@/components/Reviews";
-
-const { default: BettingGames } = require("@/components/BettingGames");
+import { Suspense } from "react";
+import BettingGames from "@/components/BettingGames";
 
 const Home = () => {
   return (
     <>
-      <BettingGames />
+      <Suspense fallback={<div>Loading games...</div>}>
+        <BettingGames />
+      </Suspense>
       <BettingOffers />
       <Reviews />
     </>
